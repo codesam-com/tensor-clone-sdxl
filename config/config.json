@@ -1,1 +1,29 @@
-
+{
+  "model": {
+    "base_model": "lustify_sdxl.safetensors",
+    "vae": "auto"
+  },
+  "generation": {
+    "width": 512,
+    "height": 512,
+    "steps": 25,
+    "cfg": 4.5,
+    "sampler": "dpmpp_2m_sde_gpu",
+    "scheduler": "karras",
+    "clip_skip": 1,
+    "ensd": 31337
+  },
+  "upscale": {
+    "enabled": true,
+    "model": "4x-UltraSharp.pth",
+    "steps": 25,
+    "denoise": 0.35
+  },
+  "jobs": [
+    {
+      "prompt": "a cinematic portrait of a woman, highly detailed",
+      "negative_prompt": "blurry, low quality",
+      "seed": null
+    }
+  ]
+}
