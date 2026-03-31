@@ -1,6 +1,7 @@
 {
   "model": {
     "base_model": "lustify_sdxl.safetensors",
+    "base_model_drive_file_id": "134KP1blX3R4SyaKnjcT9z1MXbMsF5DtC",
     "vae": "auto"
   },
   "generation": {
