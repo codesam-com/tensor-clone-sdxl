@@ -56,7 +56,7 @@ def main():
         workflow["13"]["inputs"]["strength_model"] = first_lora["strength"]
         workflow["13"]["inputs"]["strength_clip"] = first_lora["strength"]
     else:
-        workflow["13"]["inputs"]["lora_name"] = "add_more_details_xl.safetensors"
+        workflow["13"]["inputs"]["lora_name"] = "AMD.st"
         workflow["13"]["inputs"]["strength_model"] = 0
         workflow["13"]["inputs"]["strength_clip"] = 0
 
@@ -65,7 +65,7 @@ def main():
         workflow["14"]["inputs"]["strength_model"] = second_lora["strength"]
         workflow["14"]["inputs"]["strength_clip"] = second_lora["strength"]
     else:
-        workflow["14"]["inputs"]["lora_name"] = "age_slider_ponyxl.safetensors"
+        workflow["14"]["inputs"]["lora_name"] = "AS.st"
         workflow["14"]["inputs"]["strength_model"] = 0
         workflow["14"]["inputs"]["strength_clip"] = 0
 
