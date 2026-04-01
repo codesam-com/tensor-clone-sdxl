@@ -17,7 +17,7 @@
   "upscale": {
     "enabled": true,
     "model": "4x-UltraSharp.pth",
-    "steps": 25,
+    "steps": 4,
     "denoise": 0.35
   },
   "jobs": [
