@@ -40,6 +40,9 @@ def main():
     workflow["3"]["inputs"]["sampler_name"] = generation["sampler"]
     workflow["3"]["inputs"]["scheduler"] = generation["scheduler"]
 
+    workflow["9"]["inputs"]["filename_prefix"] = f"{seed}_base"
+    workflow["12"]["inputs"]["filename_prefix"] = f"{seed}_upscaled"
+
     os.makedirs("comfy", exist_ok=True)
     save_json(OUTPUT_PATH, workflow)
 
