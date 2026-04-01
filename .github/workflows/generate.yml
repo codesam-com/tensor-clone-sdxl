@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare-comfy-model:
+  generate-test-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repo
@@ -50,10 +51,16 @@ jobs:
         run: |
           python scripts/prepare_models.py
 
-      - name: Verify ComfyUI checkpoints
+      - name: Build runtime workflow
         run: |
-          ls -lh ComfyUI/models/checkpoints
+          python scripts/build_workflow.py
 
-      - name: Check ComfyUI startup
+      - name: Run generation
         run: |
-          python scripts/check_comfy.py
+          python scripts/run_generation.py
+
+      - name: Upload generated images
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-images
+          path: ComfyUI/output/*.png
