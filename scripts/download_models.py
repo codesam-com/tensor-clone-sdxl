@@ -4,10 +4,11 @@ import requests
 
 CONFIG_PATH = "config/config.json"
 OUTPUT_DIR = "models"
+LORA_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "loras")
 
 
 def load_config():
-    with open(CONFIG_PATH, "r") as f:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -23,19 +24,16 @@ def get_access_token():
 
     response = requests.post(url, data=data)
     response.raise_for_status()
-
     return response.json()["access_token"]
 
 
-def download_file(file_id, filename, access_token):
+def download_file(file_id, filepath, access_token):
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
-
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    filepath = os.path.join(OUTPUT_DIR, filename)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     with requests.get(url, headers=headers, stream=True) as r:
         r.raise_for_status()
@@ -49,13 +47,20 @@ def download_file(file_id, filename, access_token):
 
 def main():
     config = load_config()
-
-    file_id = config["model"]["base_model_drive_file_id"]
-    filename = config["model"]["base_model"]
-
     access_token = get_access_token()
 
-    download_file(file_id, filename, access_token)
+    base_model_name = config["model"]["base_model"]
+    base_model_file_id = config["model"]["base_model_drive_file_id"]
+    base_model_path = os.path.join(OUTPUT_DIR, base_model_name)
+
+    download_file(base_model_file_id, base_model_path, access_token)
+
+    for lora in config.get("loras", []):
+        lora_name = lora["name"]
+        lora_file_id = lora["drive_file_id"]
+        lora_path = os.path.join(LORA_OUTPUT_DIR, lora_name)
+
+        download_file(lora_file_id, lora_path, access_token)
 
 
 if __name__ == "__main__":
