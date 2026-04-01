@@ -28,6 +28,7 @@ def main():
     job = config["jobs"][0]
     generation = config["generation"]
     model = config["model"]
+    upscale = config["upscale"]
     enabled_loras = get_enabled_loras(config)
 
     seed = job["seed"]
@@ -47,6 +48,7 @@ def main():
 
     workflow["9"]["inputs"]["filename_prefix"] = f"{seed}_base"
     workflow["12"]["inputs"]["filename_prefix"] = f"{seed}_upscaled"
+    workflow["10"]["inputs"]["model_name"] = upscale["model"]
 
     first_lora = enabled_loras[0] if len(enabled_loras) > 0 else None
     second_lora = enabled_loras[1] if len(enabled_loras) > 1 else None
@@ -75,6 +77,7 @@ def main():
     print(f"Workflow built: {OUTPUT_PATH}")
     print(f"Seed used: {seed}")
     print(f"Enabled LoRAs: {[l['name'] for l in enabled_loras]}")
+    print(f"Upscale model: {upscale['model']}")
 
 
 if __name__ == "__main__":
