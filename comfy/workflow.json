@@ -75,9 +75,43 @@
   },
   "9": {
     "inputs": {
-      "filename_prefix": "generated",
+      "filename_prefix": "generated_base",
       "images": [
         "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  },
+  "10": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 2,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy"
+  },
+  "11": {
+    "inputs": {
+      "samples": [
+        "10",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode"
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "generated_upscaled",
+      "images": [
+        "11",
         0
       ]
     },
