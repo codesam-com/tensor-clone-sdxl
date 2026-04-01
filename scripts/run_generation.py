@@ -8,6 +8,7 @@ from urllib import request
 WORKFLOW_PATH = "comfy/workflow.runtime.json"
 COMFY_DIR = "ComfyUI"
 OUTPUT_DIR = os.path.join(COMFY_DIR, "output")
+GENERATION_TIMEOUT = 1800
 
 
 def wait_for_server(url, timeout=60):
@@ -58,7 +59,7 @@ def main():
         print(f"Prompt queued: {prompt_id}")
 
         start = time.time()
-        while time.time() - start < 300:
+        while time.time() - start < GENERATION_TIMEOUT:
             with request.urlopen(f"http://127.0.0.1:8188/history/{prompt_id}", timeout=10) as resp:
                 history = json.loads(resp.read().decode("utf-8"))
 
