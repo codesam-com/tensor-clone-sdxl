@@ -119,7 +119,7 @@
   },
   "13": {
     "inputs": {
-      "lora_name": "add_more_details_xl.safetensors",
+      "lora_name": "AMD.st",
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
@@ -135,7 +135,7 @@
   },
   "14": {
     "inputs": {
-      "lora_name": "age_slider_ponyxl.safetensors",
+      "lora_name": "AS.st",
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
