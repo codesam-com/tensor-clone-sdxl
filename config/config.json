@@ -6,14 +6,12 @@
   },
   "loras": [
     {
-      "name": "add_more_details_xl.safetensors",
-      "drive_file_id": "1oOe1B5F4z6AogoRMv9CZYO_O5ZXYW8D5",
+      "name": "AMD.st",
       "strength": -0.8,
       "enabled": true
     },
     {
-      "name": "age_slider_ponyxl.safetensors",
-      "drive_file_id": "1BTU-sXMXvMdUBO9LXrL5x-7M8NC3dEp8",
+      "name": "AS.st",
       "strength": -2.0,
       "enabled": false
     }
@@ -30,7 +28,7 @@
   },
   "upscale": {
     "enabled": true,
-    "model": "4x-UltraSharp.pth",
+    "model": "4xUS.pth",
     "steps": 25,
     "denoise": 0.35
   },
