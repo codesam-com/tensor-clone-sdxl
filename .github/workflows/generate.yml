@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  install-comfy:
+  prepare-comfy-model:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,22 @@ jobs:
       - name: Install repo requirements
         run: |
           pip install -r requirements.txt
+
+      - name: Download base model from Google Drive
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        run: |
+          python scripts/download_models.py
+
+      - name: Copy model into ComfyUI checkpoints
+        run: |
+          python scripts/prepare_models.py
+
+      - name: Verify ComfyUI checkpoints
+        run: |
+          ls -lh ComfyUI/models/checkpoints
 
       - name: Check ComfyUI startup
         run: |
