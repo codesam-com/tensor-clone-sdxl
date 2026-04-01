@@ -8,7 +8,7 @@
       "scheduler": "normal",
       "denoise": 1,
       "model": [
-        "4",
+        "14",
         0
       ],
       "positive": [
@@ -44,7 +44,7 @@
     "inputs": {
       "text": "test prompt",
       "clip": [
-        "4",
+        "14",
         1
       ]
     },
@@ -54,7 +54,7 @@
     "inputs": {
       "text": "bad quality, blurry",
       "clip": [
-        "4",
+        "14",
         1
       ]
     },
@@ -116,5 +116,37 @@
       ]
     },
     "class_type": "SaveImage"
+  },
+  "13": {
+    "inputs": {
+      "lora_name": "add_more_details_xl.safetensors",
+      "strength_model": 0,
+      "strength_clip": 0,
+      "model": [
+        "4",
+        0
+      ],
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "LoraLoader"
+  },
+  "14": {
+    "inputs": {
+      "lora_name": "age_slider_ponyxl.safetensors",
+      "strength_model": 0,
+      "strength_clip": 0,
+      "model": [
+        "13",
+        0
+      ],
+      "clip": [
+        "13",
+        1
+      ]
+    },
+    "class_type": "LoraLoader"
   }
 }
