@@ -5,7 +5,6 @@ import requests
 
 CONFIG_PATH = "config/config.json"
 OUTPUT_DIR = "models"
-LORA_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "loras")
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
@@ -91,13 +90,6 @@ def main():
     base_model_path = os.path.join(OUTPUT_DIR, base_model_name)
 
     download_file(base_model_file_id, base_model_path, access_token)
-
-    for lora in config.get("loras", []):
-        lora_name = lora["name"]
-        lora_file_id = lora["drive_file_id"]
-        lora_path = os.path.join(LORA_OUTPUT_DIR, lora_name)
-
-        download_file(lora_file_id, lora_path, access_token)
 
 
 if __name__ == "__main__":
