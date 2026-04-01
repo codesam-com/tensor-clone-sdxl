@@ -4,20 +4,34 @@
     "base_model_drive_file_id": "134KP1blX3R4SyaKnjcT9z1MXbMsF5DtC",
     "vae": "auto"
   },
+  "loras": [
+    {
+      "name": "add_more_details_xl.safetensors",
+      "drive_file_id": "1oOe1B5F4z6AogoRMv9CZYO_O5ZXYW8D5",
+      "strength": -0.8,
+      "enabled": false
+    },
+    {
+      "name": "age_slider_ponyxl.safetensors",
+      "drive_file_id": "1BTU-sXMXvMdUBO9LXrL5x-7M8NC3dEp8",
+      "strength": -2.0,
+      "enabled": false
+    }
+  ],
   "generation": {
     "width": 512,
     "height": 512,
-    "steps": 25,
+    "steps": 4,
     "cfg": 4.5,
-    "sampler": "dpmpp_2m_sde_gpu",
-    "scheduler": "karras",
+    "sampler": "euler",
+    "scheduler": "normal",
     "clip_skip": 1,
     "ensd": 31337
   },
   "upscale": {
     "enabled": true,
     "model": "4x-UltraSharp.pth",
-    "steps": 4,
+    "steps": 25,
     "denoise": 0.35
   },
   "jobs": [
