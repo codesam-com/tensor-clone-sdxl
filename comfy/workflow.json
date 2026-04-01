@@ -85,27 +85,22 @@
   },
   "10": {
     "inputs": {
-      "upscale_method": "nearest-exact",
-      "scale_by": 2,
-      "samples": [
-        "3",
-        0
-      ]
+      "model_name": "4xUS.pth"
     },
-    "class_type": "LatentUpscaleBy"
+    "class_type": "UpscaleModelLoader"
   },
   "11": {
     "inputs": {
-      "samples": [
+      "upscale_model": [
         "10",
         0
       ],
-      "vae": [
-        "4",
-        2
+      "image": [
+        "8",
+        0
       ]
     },
-    "class_type": "VAEDecode"
+    "class_type": "ImageUpscaleWithModel"
   },
   "12": {
     "inputs": {
