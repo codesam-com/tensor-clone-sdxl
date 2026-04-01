@@ -1,0 +1,153 @@
+name: Import Assets To Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      upscale_drive_file_id:
+        description: "Google Drive file ID for 4x-UltraSharp"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Download assets from Google Drive
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+          UPSCALE_DRIVE_FILE_ID: ${{ inputs.upscale_drive_file_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import requests
+
+          CONFIG_PATH = "config/config.json"
+          TOKEN_URL = "https://oauth2.googleapis.com/token"
+          DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+
+          DOWNLOAD_TIMEOUT = 120
+          CHUNK_SIZE = 1024 * 1024
+          MAX_RETRIES = 5
+          RETRY_DELAY_SECONDS = 5
+
+          def load_config():
+              with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                  return json.load(f)
+
+          def get_access_token():
+              data = {
+                  "client_id": os.environ["GDRIVE_CLIENT_ID"],
+                  "client_secret": os.environ["GDRIVE_CLIENT_SECRET"],
+                  "refresh_token": os.environ["GDRIVE_REFRESH_TOKEN"],
+                  "grant_type": "refresh_token",
+              }
+              response = requests.post(TOKEN_URL, data=data, timeout=30)
+              response.raise_for_status()
+              return response.json()["access_token"]
+
+          def download_file(file_id, filepath, access_token):
+              url = DRIVE_FILE_URL.format(file_id=file_id)
+              headers = {"Authorization": f"Bearer {access_token}"}
+              os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+              for attempt in range(1, MAX_RETRIES + 1):
+                  try:
+                      if os.path.exists(filepath):
+                          os.remove(filepath)
+
+                      with requests.get(
+                          url,
+                          headers=headers,
+                          stream=True,
+                          timeout=DOWNLOAD_TIMEOUT,
+                      ) as response:
+                          response.raise_for_status()
+                          with open(filepath, "wb") as f:
+                              for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                                  if chunk:
+                                      f.write(chunk)
+
+                      size = os.path.getsize(filepath)
+                      if size <= 0:
+                          raise RuntimeError(f"Empty file: {filepath}")
+
+                      print(f"Downloaded: {filepath} ({size} bytes)")
+                      return
+                  except Exception as e:
+                      print(f"Failed {filepath}: {e}")
+                      if os.path.exists(filepath):
+                          os.remove(filepath)
+                      if attempt == MAX_RETRIES:
+                          raise
+                      time.sleep(RETRY_DELAY_SECONDS)
+
+          config = load_config()
+          token = get_access_token()
+
+          # LoRA 1 -> AMD.st
+          lora1 = config["loras"][0]
+          download_file(
+              lora1["drive_file_id"],
+              "assets/loras/AMD.st",
+              token
+          )
+
+          # LoRA 2 -> AS.st
+          lora2 = config["loras"][1]
+          download_file(
+              lora2["drive_file_id"],
+              "assets/loras/AS.st",
+              token
+          )
+
+          # Upscaler -> 4xUS.pth
+          download_file(
+              os.environ["1KLq0bvHceyaKCnz5nOxelgfVOdJZAZpA"],
+              "assets/upscale/4xUS.pth",
+              token
+          )
+          PY
+
+      - name: Show imported files
+        run: |
+          ls -lh assets/loras
+          ls -lh assets/upscale
+
+      - name: Commit and push assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add assets/loras/AMD.st assets/loras/AS.st assets/upscale/4xUS.pth
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Add local repo assets: AMD, AS, 4xUS"
+          git push
