@@ -108,7 +108,6 @@ jobs:
           config = load_config()
           token = get_access_token()
 
-          # LoRA 1 -> AMD.st
           lora1 = config["loras"][0]
           download_file(
               lora1["drive_file_id"],
@@ -116,7 +115,6 @@ jobs:
               token
           )
 
-          # LoRA 2 -> AS.st
           lora2 = config["loras"][1]
           download_file(
               lora2["drive_file_id"],
@@ -124,9 +122,8 @@ jobs:
               token
           )
 
-          # Upscaler -> 4xUS.pth
           download_file(
-              os.environ["1KLq0bvHceyaKCnz5nOxelgfVOdJZAZpA"],
+              os.environ["UPSCALE_DRIVE_FILE_ID"],
               "assets/upscale/4xUS.pth",
               token
           )
