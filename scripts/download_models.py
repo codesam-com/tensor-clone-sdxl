@@ -1,10 +1,19 @@
-import os
 import json
+import os
+import time
 import requests
 
 CONFIG_PATH = "config/config.json"
 OUTPUT_DIR = "models"
 LORA_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "loras")
+
+TOKEN_URL = "https://oauth2.googleapis.com/token"
+DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+
+DOWNLOAD_TIMEOUT = 120
+CHUNK_SIZE = 1024 * 1024  # 1 MB
+MAX_RETRIES = 5
+RETRY_DELAY_SECONDS = 5
 
 
 def load_config():
@@ -13,8 +22,6 @@ def load_config():
 
 
 def get_access_token():
-    url = "https://oauth2.googleapis.com/token"
-
     data = {
         "client_id": os.environ["GDRIVE_CLIENT_ID"],
         "client_secret": os.environ["GDRIVE_CLIENT_SECRET"],
@@ -22,27 +29,57 @@ def get_access_token():
         "grant_type": "refresh_token",
     }
 
-    response = requests.post(url, data=data)
+    response = requests.post(TOKEN_URL, data=data, timeout=30)
     response.raise_for_status()
     return response.json()["access_token"]
 
 
 def download_file(file_id, filepath, access_token):
-    url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+    url = DRIVE_FILE_URL.format(file_id=file_id)
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-    with requests.get(url, headers=headers, stream=True) as r:
-        r.raise_for_status()
-        with open(filepath, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
 
-    print(f"Downloaded: {filepath}")
+            print(f"Downloading to {filepath} (attempt {attempt}/{MAX_RETRIES})")
+
+            with requests.get(
+                url,
+                headers=headers,
+                stream=True,
+                timeout=DOWNLOAD_TIMEOUT,
+            ) as response:
+                response.raise_for_status()
+
+                with open(filepath, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                        if chunk:
+                            f.write(chunk)
+
+            file_size = os.path.getsize(filepath)
+            if file_size <= 0:
+                raise RuntimeError(f"Downloaded file is empty: {filepath}")
+
+            print(f"Downloaded successfully: {filepath} ({file_size} bytes)")
+            return
+
+        except Exception as e:
+            print(f"Download failed for {filepath}: {e}")
+
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+            if attempt == MAX_RETRIES:
+                raise
+
+            print(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
+            time.sleep(RETRY_DELAY_SECONDS)
 
 
 def main():
