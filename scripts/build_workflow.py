@@ -35,6 +35,10 @@ def main():
     workflow["6"]["inputs"]["text"] = job["prompt"]
     workflow["7"]["inputs"]["text"] = job["negative_prompt"]
     workflow["3"]["inputs"]["seed"] = seed
+    workflow["3"]["inputs"]["steps"] = generation["steps"]
+    workflow["3"]["inputs"]["cfg"] = generation["cfg"]
+    workflow["3"]["inputs"]["sampler_name"] = generation["sampler"]
+    workflow["3"]["inputs"]["scheduler"] = generation["scheduler"]
 
     os.makedirs("comfy", exist_ok=True)
     save_json(OUTPUT_PATH, workflow)
