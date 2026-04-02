@@ -114,7 +114,7 @@
   },
   "13": {
     "inputs": {
-      "lora_name": "AMD.st",
+      "lora_name": "AMD.safetensors",
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
@@ -130,7 +130,7 @@
   },
   "14": {
     "inputs": {
-      "lora_name": "AS.st",
+      "lora_name": "AS.safetensors",
       "strength_model": 0,
       "strength_clip": 0,
       "model": [
