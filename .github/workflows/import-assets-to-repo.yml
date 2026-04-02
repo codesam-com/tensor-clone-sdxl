@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       upscale_drive_file_id:
-        description: "Google Drive file ID for 4x-UltraSharp"
+        description: "Google Drive file ID for 4xUS.pth"
         required: true
         type: string
 
@@ -108,22 +108,23 @@ jobs:
           config = load_config()
           token = get_access_token()
 
-          lora1 = config["loras"][0]
-          download_file(
           # LoRA 1 -> AMD.safetensors
+          lora1 = config["loras"][0]
           download_file(
               lora1["drive_file_id"],
               "assets/loras/AMD.safetensors",
               token
           )
-          
+
           # LoRA 2 -> AS.safetensors
+          lora2 = config["loras"][1]
           download_file(
               lora2["drive_file_id"],
               "assets/loras/AS.safetensors",
               token
           )
 
+          # Upscaler -> 4xUS.pth
           download_file(
               os.environ["UPSCALE_DRIVE_FILE_ID"],
               "assets/upscale/4xUS.pth",
@@ -148,5 +149,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Add local repo assets: AMD, AS, 4xUS"
+          git commit -m "Add repo assets: AMD, AS, 4xUS"
           git push
