@@ -6,12 +6,14 @@
   },
   "loras": [
     {
-      "name": "AMD.st",
+      "name": "AMD.safetensors",
+      "drive_file_id": "1oOe1B5F4z6AogoRMv9CZYO_O5ZXYW8D5",
       "strength": -0.8,
       "enabled": true
     },
     {
-      "name": "AS.st",
+      "name": "AS.safetensors",
+      "drive_file_id": "1BTU-sXMXvMdUBO9LXrL5x-7M8NC3dEp8",
       "strength": -2.0,
       "enabled": false
     }
@@ -29,6 +31,8 @@
   "upscale": {
     "enabled": true,
     "model": "4xUS.pth",
+    "source": "repo",
+    "scale": 2,
     "steps": 25,
     "denoise": 0.35
   },
