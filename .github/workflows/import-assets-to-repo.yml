@@ -69,6 +69,14 @@ jobs:
               response.raise_for_status()
               return response.json()["access_token"]
 
+          def get_drive_file_id(item, label):
+              file_id = item.get("drive_file_id") or item.get("file_id")
+              if not file_id:
+                  raise KeyError(
+                      f"{label} needs 'drive_file_id' or 'file_id' in config/config.json"
+                  )
+              return file_id
+
           def download_file(file_id, filepath, access_token):
               url = DRIVE_FILE_URL.format(file_id=file_id)
               headers = {"Authorization": f"Bearer {access_token}"}
@@ -108,23 +116,24 @@ jobs:
           config = load_config()
           token = get_access_token()
 
-          # LoRA 1 -> AMD.safetensors
           lora1 = config["loras"][0]
+          lora2 = config["loras"][1]
+
+          lora1_file_id = get_drive_file_id(lora1, "LoRA 1")
+          lora2_file_id = get_drive_file_id(lora2, "LoRA 2")
+
           download_file(
-              lora1["drive_file_id"],
+              lora1_file_id,
               "assets/loras/AMD.safetensors",
               token
           )
 
-          # LoRA 2 -> AS.safetensors
-          lora2 = config["loras"][1]
           download_file(
-              lora2["drive_file_id"],
+              lora2_file_id,
               "assets/loras/AS.safetensors",
               token
           )
 
-          # Upscaler -> 4xUS.pth
           download_file(
               os.environ["UPSCALE_DRIVE_FILE_ID"],
               "assets/upscale/4xUS.pth",
