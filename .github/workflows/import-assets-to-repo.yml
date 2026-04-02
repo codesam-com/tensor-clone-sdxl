@@ -111,14 +111,14 @@ jobs:
           lora1 = config["loras"][0]
           download_file(
               lora1["drive_file_id"],
-              "assets/loras/AMD.st",
+              "assets/loras/AMD.safetensors",
               token
           )
 
           lora2 = config["loras"][1]
           download_file(
               lora2["drive_file_id"],
-              "assets/loras/AS.st",
+              "assets/loras/AS.safetensors",
               token
           )
 
