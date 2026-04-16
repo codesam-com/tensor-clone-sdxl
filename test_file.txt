@@ -1,0 +1,5 @@
+This is a test file created via ChatGPT GitHub integration.
+
+Repo: tensor-clone-sdxl
+Purpose: verify write access.
+Timestamp: 2026-04-17
