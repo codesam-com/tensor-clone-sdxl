@@ -1,10 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uuid
+import os
+import requests
 
 app = FastAPI()
 
 jobs = {}
+
+RUNPOD_ENDPOINT = os.getenv("RUNPOD_ENDPOINT")
+RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
 
 class JobRequest(BaseModel):
     prompt: str
@@ -16,9 +21,46 @@ def health():
 @app.post("/v1/jobs")
 def create_job(req: JobRequest):
     job_id = str(uuid.uuid4())
-    jobs[job_id] = {"status": "queued", "prompt": req.prompt}
+
+    headers = {
+        "Authorization": f"Bearer {RUNPOD_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "input": {
+            "prompt": req.prompt
+        }
+    }
+
+    response = requests.post(RUNPOD_ENDPOINT, json=payload, headers=headers)
+    data = response.json()
+
+    jobs[job_id] = {
+        "status": "submitted",
+        "runpod_id": data.get("id"),
+        "prompt": req.prompt
+    }
+
     return {"job_id": job_id}
 
 @app.get("/v1/jobs/{job_id}")
 def get_job(job_id: str):
-    return jobs.get(job_id, {"error": "not found"})
+    job = jobs.get(job_id)
+    if not job:
+        return {"error": "not found"}
+
+    runpod_id = job.get("runpod_id")
+
+    headers = {
+        "Authorization": f"Bearer {RUNPOD_API_KEY}"
+    }
+
+    status_url = f"{RUNPOD_ENDPOINT}/{runpod_id}"
+    response = requests.get(status_url, headers=headers)
+    data = response.json()
+
+    return {
+        "status": data.get("status"),
+        "output": data.get("output")
+    }
