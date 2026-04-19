@@ -1,39 +1,46 @@
 import { useState } from 'react'
+import './styles.css'
 
 const API_URL = 'http://localhost:8000'
+
+const styles = [
+  { name: 'Cinematic', suffix: 'cinematic lighting' },
+  { name: 'Anime', suffix: 'anime style' },
+  { name: 'Realistic', suffix: 'photorealistic' },
+  { name: 'Fantasy', suffix: 'fantasy art' }
+]
 
 export default function App() {
   const [prompt, setPrompt] = useState('')
   const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [jobId, setJobId] = useState(null)
+  const [history, setHistory] = useState([])
+  const [selectedStyle, setSelectedStyle] = useState(styles[0])
 
   const generate = async () => {
     setLoading(true)
+    const fullPrompt = `${prompt}, ${selectedStyle.suffix}`
+
     const res = await fetch(`${API_URL}/v1/jobs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': 'test-key'
       },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt: fullPrompt })
     })
 
     const data = await res.json()
-    setJobId(data.job_id)
 
-    poll(data.job_id)
-  }
-
-  const poll = async (id) => {
     const interval = setInterval(async () => {
-      const res = await fetch(`${API_URL}/v1/jobs/${id}`, {
+      const r = await fetch(`${API_URL}/v1/jobs/${data.job_id}`, {
         headers: { 'x-api-key': 'test-key' }
       })
-      const data = await res.json()
+      const d = await r.json()
 
-      if (data.image_url) {
-        setImage(data.image_url)
+      if (d.image_url) {
+        setImage(d.image_url)
+        setHistory(prev => [{ url: d.image_url, prompt: fullPrompt }, ...prev])
         setLoading(false)
         clearInterval(interval)
       }
@@ -41,26 +48,43 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: 'Arial' }}>
-      <h1>Tensor Clone</h1>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <h2>Tensor Clone</h2>
 
-      <textarea
-        placeholder="Describe your image..."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        style={{ width: '100%', height: 100 }}
-      />
+        {styles.map(s => (
+          <div key={s.name}
+            className={`style-chip ${selectedStyle.name===s.name?'active':''}`}
+            onClick={()=>setSelectedStyle(s)}>
+            {s.name}
+          </div>
+        ))}
+      </aside>
 
-      <button onClick={generate} disabled={loading}>
-        {loading ? 'Generating...' : 'Generate'}
-      </button>
+      <main className="main">
+        <textarea
+          className="prompt-box"
+          value={prompt}
+          onChange={(e)=>setPrompt(e.target.value)}
+          placeholder="Describe your image..."
+        />
 
-      {image && (
-        <div>
-          <h3>Result:</h3>
-          <img src={image} style={{ maxWidth: '100%' }} />
+        <button className="primary-btn" onClick={generate}>
+          {loading ? 'Generating...' : 'Generate'}
+        </button>
+
+        <div className="image-stage">
+          {image && <img src={image} />}
         </div>
-      )}
+
+        <div className="gallery-grid">
+          {history.map((h,i)=>(
+            <div key={i} className="gallery-card">
+              <img src={h.url}/>
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   )
 }
