@@ -6,9 +6,11 @@ import requests
 from services.s3_storage import upload_base64_image
 from services.auth import get_api_key, deduct_credit
 from api.auth_routes import router as auth_router
+from api.billing_routes import router as billing_router
 
 app = FastAPI()
 app.include_router(auth_router, prefix="/auth")
+app.include_router(billing_router, prefix="/billing")
 
 jobs = {}
 
