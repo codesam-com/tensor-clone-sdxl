@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import uuid
 import os
 import requests
+from services.s3_storage import upload_base64_image
 
 app = FastAPI()
 
@@ -60,7 +61,15 @@ def get_job(job_id: str):
     response = requests.get(status_url, headers=headers)
     data = response.json()
 
+    if data.get("status") == "COMPLETED":
+        base64_img = data.get("output", {}).get("image_base64")
+        if base64_img:
+            url = upload_base64_image(base64_img)
+            return {
+                "status": "COMPLETED",
+                "image_url": url
+            }
+
     return {
-        "status": data.get("status"),
-        "output": data.get("output")
+        "status": data.get("status")
     }
