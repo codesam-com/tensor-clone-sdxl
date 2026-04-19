@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 import uuid
 import os
 import requests
 from services.s3_storage import upload_base64_image
+from services.auth import get_api_key, deduct_credit
 
 app = FastAPI()
 
@@ -20,7 +21,9 @@ def health():
     return {"status": "ok"}
 
 @app.post("/v1/jobs")
-def create_job(req: JobRequest):
+def create_job(req: JobRequest, api_key: str = Depends(get_api_key)):
+    deduct_credit(api_key)
+
     job_id = str(uuid.uuid4())
 
     headers = {
@@ -46,7 +49,7 @@ def create_job(req: JobRequest):
     return {"job_id": job_id}
 
 @app.get("/v1/jobs/{job_id}")
-def get_job(job_id: str):
+def get_job(job_id: str, api_key: str = Depends(get_api_key)):
     job = jobs.get(job_id)
     if not job:
         return {"error": "not found"}
