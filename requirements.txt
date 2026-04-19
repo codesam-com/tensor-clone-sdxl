@@ -8,3 +8,5 @@ accelerate
 runpod
 boto3
 stripe
+redis
+rq
