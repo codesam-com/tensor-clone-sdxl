@@ -5,8 +5,10 @@ import os
 import requests
 from services.s3_storage import upload_base64_image
 from services.auth import get_api_key, deduct_credit
+from api.auth_routes import router as auth_router
 
 app = FastAPI()
+app.include_router(auth_router, prefix="/auth")
 
 jobs = {}
 
@@ -21,7 +23,7 @@ def health():
     return {"status": "ok"}
 
 @app.post("/v1/jobs")
-def create_job(req: JobRequest, api_key: str = Depends(get_api_key)):
+def create_job(req: JobRequest, api_key = Depends(get_api_key)):
     deduct_credit(api_key)
 
     job_id = str(uuid.uuid4())
@@ -49,7 +51,7 @@ def create_job(req: JobRequest, api_key: str = Depends(get_api_key)):
     return {"job_id": job_id}
 
 @app.get("/v1/jobs/{job_id}")
-def get_job(job_id: str, api_key: str = Depends(get_api_key)):
+def get_job(job_id: str, api_key = Depends(get_api_key)):
     job = jobs.get(job_id)
     if not job:
         return {"error": "not found"}
