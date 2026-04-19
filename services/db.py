@@ -15,6 +15,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     api_key = Column(String, unique=True, index=True)
     credits = Column(Integer, default=100)
+    tier = Column(String, default="free")
+    rate_limit_per_minute = Column(Integer, default=10)
 
 
 def init_db():
