@@ -7,3 +7,4 @@ transformers
 accelerate
 runpod
 boto3
+stripe
